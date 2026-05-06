@@ -1,0 +1,29 @@
+# --- CodeIgniter 4 ---
+/writable/*
+!/writable/index.html
+!/writable/.htaccess
+
+# --- Dependencies ---
+.env
+*.env
+/vendor/
+/node_modules/
+
+# --- React / Vite / Build Tools ---
+/dist/
+/public/build/
+/public/assets/
+/public/index.html
+.eslintcache
+.stylelintcache
+*.log
+
+# --- IDEs ---
+.vscode/
+.idea/
+
+# --- System ---
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
