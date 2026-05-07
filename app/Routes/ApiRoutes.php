@@ -4,13 +4,26 @@
  * @var \CodeIgniter\Router\RouteCollection $routes
  */
 
-use CodeIgniter\Config\Services;
-
-$routes = Services::routes();
+$routes->options('(:any)', function() {
+    $response = response();
+    $response->setStatusCode(204); // No Content
+    $response->setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+    $response->setHeader('Access-Control-Allow-Headers', 'X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Authorization');
+    $response->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    return $response->send();
+});
 
 // --- API RUTES ---
-$routes->group('api', function($routes) {
+$routes->group('api', ['namespace' => 'App\Controllers\Api'], function($routes) {
+    //** Test */
     $routes->get('test', 'TestController::index');
+
+    //** Products */
+    $routes->get('products', 'ProductController::index');
+    $routes->post('products', 'ProductController::create');
+
+    //** Categories */
+    $routes->get('categories', 'CategoryController::index');
 });
 
 // --- ANY RUTES ---

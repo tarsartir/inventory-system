@@ -19,7 +19,7 @@ const Home = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get('/test');
+      const response = await api.get('api/test');
       setData(response.data);
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Error de conexión');

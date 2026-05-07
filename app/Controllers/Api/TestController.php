@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\Api;
 
 use CodeIgniter\RESTful\ResourceController;
 
 class TestController extends ResourceController
 {
-    protected $format = 'json';
-
     public function index()
     {
         return $this->respond([
-            'status'  => 'success',
+            'status'  => '200',
             'message' => '¡Conexión establecida!',
             'data'    => [
                 'php_version' => PHP_VERSION,                
