@@ -1,20 +1,12 @@
 <?php
 
 use CodeIgniter\Router\RouteCollection;
-use CodeIgniter\Config\Services;
 
-$routes = Services::routes();
+/**
+ * @var RouteCollection $routes
+ */
+$routes->get('/', 'Home::index');
 
-// --- API RUTES ---
-$routes->group('api', function($routes) {
-    $routes->get('test', 'TestController::index');
-});
+require APPPATH . 'Routes/AppRoutes.php';
+require APPPATH . 'Routes/ApiRoutes.php';
 
-// --- ANY RUTES ---
-$routes->get('(:any)', function() {
-    $path = FCPATH . 'index.html';
-    if (file_exists($path)) {
-        return file_get_contents($path);
-    }
-    return "Error: No encuentro el archivo en: " . realpath($path);
-});
