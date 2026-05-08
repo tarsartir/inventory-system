@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
+import ConfirmModal from '../../components/app/ConfirmModal';
+import Toast from '../../components/app/Toast';
 import ProductTable from './ProductTable';
 import ProductModal from './ProductModal';
-import Toast from '../../components/app/Toast';
 
 interface Category {
   id: number;
@@ -40,8 +41,10 @@ const fetchCategories = async () => {
 function App() {
   const queryClient = useQueryClient();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productToDelete, setProductToDelete] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [toastConfig, setToastConfig] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const products = useQuery({
@@ -77,8 +80,22 @@ function App() {
     mutationFn: (id: number) => api.delete(`products/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      setToastConfig({ message: '¡Producto eliminado con éxito!', type: 'success' });
+      setTimeout(() => setToastConfig(null), 3000);
+    },
+    onError: () => {
+      setToastConfig({ message: 'Error al eliminar el producto', type: 'error' });
+      setTimeout(() => setToastConfig(null), 3000);
     }
   });
+
+  const confirmDelete = () => {
+    if (productToDelete) {
+      deleteMutation.mutate(productToDelete);
+      setIsConfirmOpen(false);
+      setProductToDelete(null);
+    }
+  };
 
   const filteredProducts = useMemo(() => {
     const data = products.data || [];
@@ -99,8 +116,9 @@ function App() {
     saveMutation.mutate(productData);
   };
 
-  const handleDeleteProduct = (id: number) => {
-    if (confirm('¿Estás seguro?')) deleteMutation.mutate(id);
+  const handleDeleteClick = (id: number) => {
+    setProductToDelete(id);
+    setIsConfirmOpen(true);
   };
 
   return (
@@ -127,7 +145,7 @@ function App() {
 
         <ProductTable 
           products={filteredProducts} 
-          onDelete={handleDeleteProduct} 
+          onDelete={handleDeleteClick}
           onEdit={handleEditClick}
         />
 
@@ -137,6 +155,14 @@ function App() {
           onSave={handleSaveProduct}
           categories={categories.data || []}
           productToEdit={editingProduct}
+        />
+
+        <ConfirmModal 
+          isOpen={isConfirmOpen}
+          title="¿Confirmar eliminación?"
+          message={"Esta acción no se puede deshacer.\nEl producto será borrado del inventario."} // Usa llaves y \n
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
         />
       </div>
 
