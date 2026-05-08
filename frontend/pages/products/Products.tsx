@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import ProductTable from './ProductTable';
 import ProductModal from './ProductModal';
+import Toast from '../../components/app/Toast';
 
 interface Category {
   id: number;
@@ -41,7 +42,7 @@ function App() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [showToast, setShowToast] = useState<boolean>(false);
+  const [toastConfig, setToastConfig] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const products = useQuery({
     queryKey: ['products'],
@@ -63,8 +64,12 @@ function App() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       setIsModalOpen(false);
       setEditingProduct(null);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
+      setToastConfig({ message: '¡Producto guardado con éxito!', type: 'success' });
+      setTimeout(() => setToastConfig(null), 3000);
+    },
+    onError: () => {
+      setToastConfig({ message: 'Error al guardar el producto', type: 'error' });
+      setTimeout(() => setToastConfig(null), 3000);
     }
   });
 
@@ -136,17 +141,8 @@ function App() {
       </div>
 
       {/* Toast */}
-      {showToast && (
-        <div className="toast toast-end toast-bottom z-50">
-          <div className="alert alert-success shadow-lg text-white">
-            <div className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="font-bold">¡Producto guardado con éxito!</span>
-            </div>
-          </div>
-        </div>
+      {toastConfig && (
+        <Toast message={toastConfig.message} type={toastConfig.type} />
       )}
     </div>
   );
