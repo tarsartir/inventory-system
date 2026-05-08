@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import ProductTable from './ProductTable';
 import ProductModal from './ProductModal';
@@ -25,74 +26,76 @@ interface ProductSaveData {
   category_id: number;
 }
 
+const fetchProducts = async () => {
+  const { data } = await api.get<Product[]>('products');
+  return data;
+};
+
+const fetchCategories = async () => {
+  const { data } = await api.get<Category[]>('categories');
+  return data;
+};
+
 function App() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const queryClient = useQueryClient();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showToast, setShowToast] = useState<boolean>(false);
 
+  const products = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts
+  });
+
+  const categories = useQuery({ 
+    queryKey: ['categories'], 
+    queryFn: fetchCategories 
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: (productData: ProductSaveData) => {
+      return editingProduct 
+        ? api.put(`products/${editingProduct.id}`, productData)
+        : api.post('products', productData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      setIsModalOpen(false);
+      setEditingProduct(null);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => api.delete(`products/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    }
+  });
+
   const filteredProducts = useMemo(() => {
-    if (!Array.isArray(products)) return [];
+    const data = products.data || [];
     const term = searchTerm.toLowerCase();
-    return products.filter(product => 
+    return data.filter(product => 
       product.name.toLowerCase().includes(term) || 
       product.sku.toLowerCase().includes(term) ||
       product.category_name?.toLowerCase().includes(term)
     );
-  }, [products, searchTerm]);
+  }, [products.data, searchTerm]);
 
-  const fetchData = async () => {
-    try {
-      const [prodRes, catRes] = await Promise.all([
-        api.get<Product[]>('products'),
-        api.get<Category[]>('categories')
-      ]);
-
-      setProducts(prodRes.data);
-      setCategories(catRes.data);
-    } catch (err) {
-      console.error("Error al cargar datos:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-    
   const handleEditClick = (product: Product) => {
     setEditingProduct(product);
     setIsModalOpen(true);
   };
 
-  const handleSaveProduct = async (productData: ProductSaveData) => {
-    try {
-      if (editingProduct) {
-        await api.put(`products/${editingProduct.id}`, productData);
-      } else {
-        await api.post('products', productData);
-      }
-      
-      await fetchData();
-      setIsModalOpen(false);
-      setEditingProduct(null);
-      setShowToast(true);
-    } catch (err) {
-      alert("Error al guardar");
-    }
+  const handleSaveProduct = (productData: ProductSaveData) => {
+    saveMutation.mutate(productData);
   };
 
-  const handleDeleteProduct = async (id: number) => {
-    if (!confirm('¿Estás seguro de eliminar este producto?')) return;
-    
-    try {
-      await api.delete(`products/${id}`);
-      fetchData();
-    } catch (err) {
-      alert("Error al eliminar");
-    }
+  const handleDeleteProduct = (id: number) => {
+    if (confirm('¿Estás seguro?')) deleteMutation.mutate(id);
   };
 
   return (
@@ -127,12 +130,12 @@ function App() {
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
           onSave={handleSaveProduct}
-          categories={categories}
+          categories={categories.data || []}
           productToEdit={editingProduct}
         />
       </div>
 
-      {/* Toast con DaisyUI */}
+      {/* Toast */}
       {showToast && (
         <div className="toast toast-end toast-bottom z-50">
           <div className="alert alert-success shadow-lg text-white">

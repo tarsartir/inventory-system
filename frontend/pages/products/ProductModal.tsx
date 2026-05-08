@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent, SubmitEvent } from 'react';
 
 interface Category {
   id: number;
@@ -19,7 +19,7 @@ interface ProductModalProps {
   onClose: () => void;
   onSave: (product: any) => void;
   categories: Category[];
-  productToEdit: any | null; // <-- Nueva prop
+  productToEdit: any | null;
 }
 
 const ProductModal: React.FC<ProductModalProps> = ({ 
@@ -52,7 +52,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
     }
   }, [productToEdit, isOpen]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!newProduct.category_id) {
