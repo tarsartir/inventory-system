@@ -7,6 +7,7 @@ const App = () => {
         <div className="flex gap-4 p-4 justify-center border-b border-base-200">
           <Link to="/" className="btn btn-ghost btn-sm">Inicio</Link>
           <Link to="/products" className="btn btn-ghost btn-sm">Productos</Link>
+          <Link to="/categories" className="btn btn-ghost btn-sm">Categorías</Link>
         </div>
 
         <Outlet />

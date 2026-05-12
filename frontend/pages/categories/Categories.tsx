@@ -3,121 +3,98 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
 import ConfirmModal from '../../components/app/ConfirmModal';
 import Toast from '../../components/app/Toast';
-import ProductTable from './ProductTable';
-import ProductModal from './ProductModal';
+import CategoryTable from './CategoryTable';
+import CategoryModal from './CategoryModal';
 
 interface Category {
   id: number;
   name: string;
+  description: string;
 }
 
-interface Product {
-  id: number;
-  sku: string;
+interface CategorySaveData {
   name: string;
-  category_name: string;
-  stock: number;
-  price: number | string;
+  description: string;
 }
 
-interface ProductSaveData {
-  name: string;
-  sku: string;
-  stock: number;
-  price: number;
-  category_id: number;
-}
-
-const fetchProducts = async () => {
-  const { data } = await api.get<Product[]>('products');
-  return data;
-};
-
-const fetchCategories = async (): Promise<Category[]> => {
+const fetchCategory = async (): Promise<Category[]> => {
   const { data } = await api.get<Category[]>('categories');
   return data;
 };
 
 function App() {
   const queryClient = useQueryClient();
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [productToDelete, setProductToDelete] = useState<number | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [toastConfig, setToastConfig] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const products = useQuery({
-    queryKey: ['products'],
-    queryFn: fetchProducts
+  const category = useQuery({
+    queryKey: ['category'],
+    queryFn: fetchCategory
   });
 
-  const categories = useQuery({ 
-    queryKey: ['categories'], 
-    queryFn: fetchCategories 
-  });
 
   const saveMutation = useMutation({
-    mutationFn: (productData: ProductSaveData) => {
-      return editingProduct 
-        ? api.put(`products/${editingProduct.id}`, productData)
-        : api.post('products', productData);
+    mutationFn: (categoryData: CategorySaveData) => {
+      return editingCategory
+        ? api.put(`categories/${editingCategory.id}`, categoryData)
+        : api.post('categories', categoryData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['category'] });
       setIsModalOpen(false);
-      setEditingProduct(null);
-      setToastConfig({ message: '¡Producto guardado con éxito!', type: 'success' });
+      setEditingCategory(null);
+      setToastConfig({ message: '¡Categoria guardada con éxito!', type: 'success' });
       setTimeout(() => setToastConfig(null), 3000);
     },
     onError: () => {
-      setToastConfig({ message: 'Error al guardar el producto', type: 'error' });
+      setToastConfig({ message: 'Error al guardar la categoria', type: 'error' });
       setTimeout(() => setToastConfig(null), 3000);
     }
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.delete(`products/${id}`),
+    mutationFn: (id: number) => api.delete(`categories/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      setToastConfig({ message: '¡Producto eliminado con éxito!', type: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['category'] });
+      setToastConfig({ message: '¡Categoria eliminada con éxito!', type: 'success' });
       setTimeout(() => setToastConfig(null), 3000);
     },
     onError: () => {
-      setToastConfig({ message: 'Error al eliminar el producto', type: 'error' });
+      setToastConfig({ message: 'Error al eliminar la categoria', type: 'error' });
       setTimeout(() => setToastConfig(null), 3000);
     }
   });
 
   const confirmDelete = () => {
-    if (productToDelete) {
-      deleteMutation.mutate(productToDelete);
+    if (categoryToDelete) {
+      deleteMutation.mutate(categoryToDelete);
       setIsConfirmOpen(false);
-      setProductToDelete(null);
+      setCategoryToDelete(null);
     }
   };
 
-  const filteredProducts = useMemo(() => {
-    const data = products.data || [];
-    const term = searchTerm.toLowerCase();
-    return data.filter(product => 
-      product.name.toLowerCase().includes(term) || 
-      product.sku.toLowerCase().includes(term) ||
-      product.category_name?.toLowerCase().includes(term)
-    );
-  }, [products.data, searchTerm]);
+  const filteredCategory = useMemo(() => {
+    const data = Array.isArray(category.data) ? category.data : [];
+    const term = searchTerm.toLowerCase().trim();
+    return data.filter(c => { const categoryName = c?.name ? String(c.name).toLowerCase() : ""; return categoryName.includes(term);
+  });
+  }, [category.data, searchTerm]);
 
-  const handleEditClick = (product: Product) => {
-    setEditingProduct(product);
+  const handleEditClick = (category: Category) => {
+    setEditingCategory(category);
     setIsModalOpen(true);
   };
 
-  const handleSaveProduct = (productData: ProductSaveData) => {
-    saveMutation.mutate(productData);
+  const handleSaveCategory = (categoryData: CategorySaveData) => {
+    saveMutation.mutate(categoryData);
   };
 
   const handleDeleteClick = (id: number) => {
-    setProductToDelete(id);
+    setCategoryToDelete(id);
     setIsConfirmOpen(true);
   };
 
@@ -131,7 +108,7 @@ function App() {
             <div className="relative w-full md:w-64">
               <input 
                 type="text" 
-                placeholder="Buscar producto..." 
+                placeholder="Buscar categoria..." 
                 className="input input-bordered w-full"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -143,24 +120,23 @@ function App() {
           </div>
         </header>
 
-        <ProductTable 
-          products={filteredProducts} 
+        <CategoryTable 
+          categories={filteredCategory} 
           onDelete={handleDeleteClick}
           onEdit={handleEditClick}
         />
 
-        <ProductModal 
+        <CategoryModal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
-          onSave={handleSaveProduct}
-          categories={categories.data || []}
-          productToEdit={editingProduct}
+          onSave={handleSaveCategory}
+          categoryToEdit={editingCategory}
         />
 
         <ConfirmModal 
           isOpen={isConfirmOpen}
           title="¿Confirmar eliminación?"
-          message={"Esta acción no se puede deshacer.\n El producto será borrado del inventario."} 
+          message={"Esta acción no se puede deshacer.\n La Categoria será borrada."}
           onClose={() => setIsConfirmOpen(false)}
           onConfirm={confirmDelete}
         />

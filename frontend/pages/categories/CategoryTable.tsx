@@ -1,42 +1,36 @@
 import React from 'react';
-import ProductRow from './ProductRow';
+import CategoryRow from './CategoryRow';
 
-interface Product {
+interface Category {
   id: number;
-  sku: string;
   name: string;
-  category_name: string;
-  stock: number;
-  price: number | string;
+  description: string;
 }
 
-interface ProductTableProps {
-  products: Product[];
+interface CategoryTableProps {
+  categories: Category[];
   onDelete: (id: number) => void;
-  onEdit?: (product: Product) => void;
+  onEdit?: (category: Category) => void;
 }
 
-const ProductTable: React.FC<ProductTableProps> = ({ products, onDelete, onEdit }) => {
+const CategoryTable: React.FC<CategoryTableProps> = ({ categories, onDelete, onEdit }) => {
   return (
     <div className="overflow-x-auto bg-base-100 rounded-box shadow-xl">
       <table className="table table-zebra w-full">
         <thead>
           <tr className="bg-base-300">
             <th>ID</th>
-            <th>SKU</th>
             <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Stock</th>
-            <th>Precio</th>
+            <th>Descripción</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {products.length > 0 ? (
-            products.map((product) => (
-              <ProductRow 
-                key={product.id} 
-                product={product} 
+          {categories.length > 0 ? (
+            categories.map((category) => (
+              <CategoryRow 
+                key={category.id} 
+                category={category} 
                 onDelete={onDelete} 
                 onEdit={onEdit} 
               />
@@ -55,10 +49,10 @@ const EmptyState = () => (
     <td colSpan={7} className="text-center py-10">
       <div className="flex flex-col items-center opacity-50">
         <span className="text-4xl" role="img" aria-label="search">🔍</span>
-        <p>No se encontraron productos que coincidan...</p>
+        <p>No se encontraron categorias que coincidan...</p>
       </div>
     </td>
   </tr>
 );
 
-export default ProductTable;
+export default CategoryTable;

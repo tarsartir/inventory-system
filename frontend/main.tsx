@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { productsRoutes } from './routes/products';
+import { appRoutes } from './routes/appRoutes';
 import './index.css';
 import App from './App'; 
 import Home from './pages/Home';
@@ -25,7 +25,7 @@ const router = createBrowserRouter([
     errorElement: <div className="p-10 text-red-500">¡Algo salió mal! Revisa la conexión con el servidor.</div>,
     children: [
       { index: true, element: <Home /> },
-      ...productsRoutes,
+      ...appRoutes,
     ],
   },
 ]);

@@ -6,10 +6,10 @@ use CodeIgniter\Database\Seeder;
 
 class MainSeeder extends Seeder
 {
-    public function run()
-    {
-        $this->call('InventorySeeder');  
-        $this->call('ProductSeeder');
-        // $this->call('ClientSeeder');
-    }
+  public function run()
+  {
+    $this->call('InventorySeeder');
+    $this->call('ProductSeeder');
+    // $this->call('ClientSeeder');
+  }
 }
