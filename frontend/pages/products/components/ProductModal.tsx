@@ -1,10 +1,6 @@
 import React from 'react';
+import type { Category } from '../types/ProductTypes';
 import ProductForm from './ProductForm';
-
-interface Category {
-  id: number;
-  name: string;
-}
 
 interface ProductModalProps {
   isOpen: boolean;

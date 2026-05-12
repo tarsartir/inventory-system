@@ -1,16 +1,5 @@
 import React from 'react';
-
-interface Category {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface CategoryRowProps {
-  category: Category;
-  onDelete: (id: number) => void;
-  onEdit?: ((product: Category) => void) | undefined;
-}
+import type { Category, CategoryRowProps } from '../types/CategoriesTypes'
 
 const CategoryRow: React.FC<CategoryRowProps> = ({ category, onDelete, onEdit }) => {
   return (

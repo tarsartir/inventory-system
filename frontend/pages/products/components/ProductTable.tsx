@@ -1,20 +1,6 @@
 import React from 'react';
+import type { ProductTableProps } from '../types/ProductTypes';
 import ProductRow from './ProductRow';
-
-interface Product {
-  id: number;
-  sku: string;
-  name: string;
-  category_name: string;
-  stock: number;
-  price: number | string;
-}
-
-interface ProductTableProps {
-  products: Product[];
-  onDelete: (id: number) => void;
-  onEdit?: (product: Product) => void;
-}
 
 const ProductTable: React.FC<ProductTableProps> = ({ products, onDelete, onEdit }) => {
   return (

@@ -1,13 +1,6 @@
 import React from 'react';
+import type { CategoryModalProps } from '../types/CategoriesTypes'
 import CategoryForm from './CategoryForm';
-
-
-interface CategoryModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (product: any) => void;
-  categoryToEdit: any | null;
-}
 
 const CategoryModal: React.FC<CategoryModalProps> = ({ 
   isOpen, 

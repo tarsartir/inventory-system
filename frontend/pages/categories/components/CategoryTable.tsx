@@ -1,17 +1,6 @@
 import React from 'react';
+import type { Category, CategoryTableProps } from '../types/CategoriesTypes'
 import CategoryRow from './CategoryRow';
-
-interface Category {
-  id: number;
-  name: string;
-  description: string;
-}
-
-interface CategoryTableProps {
-  categories: Category[];
-  onDelete: (id: number) => void;
-  onEdit?: (category: Category) => void;
-}
 
 const CategoryTable: React.FC<CategoryTableProps> = ({ categories, onDelete, onEdit }) => {
   return (

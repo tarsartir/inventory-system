@@ -1,26 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { ChangeEvent, SubmitEvent } from 'react';
-
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface ProductFormData {
-  name: string;
-  sku: string;
-  stock: number | string;
-  price: number | string;
-  category_id: number | string;
-}
-
-interface ProductFormProps {
-  categories: Category[];
-  productToEdit?: any | null;
-  onSave: (data: any) => void;
-  onCancel: () => void;
-  submitLabel: string;
-}
+import type { ProductFormData, ProductFormProps } from '../types/ProductTypes';
 
 const ProductForm: React.FC<ProductFormProps> = ({ 
   categories, 

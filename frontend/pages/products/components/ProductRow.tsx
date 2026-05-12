@@ -1,19 +1,5 @@
 import React from 'react';
-
-interface Product {
-  id: number;
-  sku: string;
-  name: string;
-  category_name: string;
-  stock: number;
-  price: number | string;
-}
-
-interface ProductRowProps {
-  product: Product;
-  onDelete: (id: number) => void;
-  onEdit?: ((product: Product) => void) | undefined;
-}
+import type { ProductRowProps } from '../types/ProductTypes';
 
 const ProductRow: React.FC<ProductRowProps> = ({ product, onDelete, onEdit }) => {
   return (

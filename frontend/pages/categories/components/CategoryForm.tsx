@@ -1,17 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { ChangeEvent, SubmitEvent } from 'react';
-
-interface CategoryFormData {
-  name: string;
-  description: string;
-}
-
-interface CategoryFormProps {
-  categoryToEdit?: any | null;
-  onSave: (data: any) => void;
-  onCancel: () => void;
-  submitLabel: string;
-}
+import type { CategoryFormData, CategoryFormProps } from '../types/CategoriesTypes'
 
 const CategoryForm: React.FC<CategoryFormProps> = ({ 
   categoryToEdit, 
